@@ -1,0 +1,13 @@
+# Backend ignores
+backend/__pycache__
+
+
+# Frontend ignores
+*.beam
+*.ez
+frontend/build
+frontend/erl_crash.dump
+
+# Added automatically by Lustre Dev Tools
+frontend/.lustre
+frontend/dist
