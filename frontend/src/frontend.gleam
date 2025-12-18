@@ -1,7 +1,8 @@
 import lustre
-import lustre/element/html.{div, h1, text}
+import state.{init, update}
+import ui.{view}
 
 pub fn main() {
-  let app = lustre.element(div([], [h1([], [text("A gleam hello to you!")])]))
+  let app = lustre.application(init, update, view)
   lustre.start(app, "#app", Nil)
 }
