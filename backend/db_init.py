@@ -2,23 +2,15 @@ import sqlite3
 from sqlite3 import Connection
 
 # Local includes
-from constants import DATABASE_NAME, DATABASE_DIR, DATABASE_SCHEMA_DIR
+from constants import DATABASE_NAME, DATABASE_DIR, DATABASE_SCHEMA_DIR, DATABASE_SEED_SCRIPT_DIR
+import db_interface
 
 def init() -> None:
-    if not DATABASE_SCHEMA_DIR.exists():
-        print(f"Error: {DATABASE_SCHEMA_DIR} not found.")
-        return
+    db_interface.execute_script(DATABASE_SCHEMA_DIR)
 
-    print(f"Connecting to {DATABASE_NAME}")
+def populate() -> None:
+    db_interface.execute_script(DATABASE_SEED_SCRIPT_DIR)
 
-    try:
-        connection: Connection = sqlite3.connect(DATABASE_DIR)
-
-        with open(DATABASE_SCHEMA_DIR, 'r') as f:
-            db_schema: str = f.read()
-        connection.executescript(db_schema)
-    except sqlite3.Error as e:
-        print(f"SQLite Error: {e}")
-    finally:
-        if connection:
-            connection.close()
+if __name__ == '__main__':
+    init()
+    populate()
