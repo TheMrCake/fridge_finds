@@ -12,3 +12,4 @@ frontend/manifest.toml
 # Added automatically by Lustre Dev Tools
 frontend/.lustre
 frontend/dist
+backend/database/fridge_finds.db
