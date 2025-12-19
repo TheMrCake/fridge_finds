@@ -1,14 +1,13 @@
 :root {
-  --primary-orange: #ffb380;
-  --dark-text: #333;
-  --bg-gray: #f9f9f9;
+  --primary: #ff4b2b;
+  --bg: #f8f9fa;
+  --card-bg: #ffffff;
 }
 
 body {
-  font-family: sans-serif;
   margin: 0;
-  background-color: var(--bg-gray);
-  color: var(--dark-text);
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
 }
 
 .navbar {
@@ -16,32 +15,68 @@ body {
   justify-content: space-between;
   padding: 1rem 2rem;
   background: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.category-grid {
+.logo { 
+  font-weight: bold; 
+  font-size: 1.5rem; 
+  color: var(--primary); 
+  cursor: pointer;
+}
+
+.hero {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
-  padding: 40px;
+  padding: 0 2rem 4rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.category-card {
-  background-color: var(--primary-orange);
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  font-weight: bold;
-  font-size: 1.2rem;
-  cursor: pointer;
+.summary-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  border: 1px solid #eee;
 }
 
-.category-card:hover {
+.summary-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(255, 179, 128, 0.4);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-content { padding: 1.5rem; }
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #eee;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.detail-view {
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+}
+
+.back-btn {
+  display: inline-block;
+  margin-top: 2rem;
+  color: var(--primary);
+  cursor: pointer;
+  text-decoration: none;
 }
