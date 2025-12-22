@@ -1,5 +1,5 @@
 import gleam/dynamic/decode
-import gleam/option.{type Option}
+import gleam/option.{type Option, None}
 import gleam/uri.{type Uri}
 import lustre_http.{type HttpError}
 
@@ -7,10 +7,21 @@ pub type AppError {
   UnknownTable
 }
 
+pub type Route {
+  Route(path: String, query: Option(String), fragment: Option(String))
+}
+
+pub fn default_route() {
+  Route(path: "", query: None, fragment: None)
+}
+
 pub type Page {
   Home
   RecipePage(id: Int, recipe: Option(Recipe))
   UserPage(id: Int, user: Option(User))
+  SearchPage(query: String)
+  LoginPage(username: String, password: String)
+  RegisterPage(username: String, password: String)
   PageNotFound
 }
 
@@ -32,7 +43,16 @@ pub type Recipe {
 }
 
 pub type User {
-  User(id: Int, name: String, description: String)
+  User(id: Int, name: String, username: String, description: String)
+}
+
+pub fn user_decoder() -> decode.Decoder(User) {
+  use id <- decode.field("id", decode.int)
+  use name <- decode.field("name", decode.string)
+  use description <- decode.field("description", decode.string)
+  use username <- decode.field("username", decode.string)
+
+  decode.success(User(id:, name:, username:, description:))
 }
 
 pub type Category {
@@ -94,9 +114,15 @@ pub fn detail_decoder(table_kind: TableKind) -> decode.Decoder(Detail) {
   use name <- decode.field("name", decode.string)
   use description <- decode.field("description", decode.string)
   case table_kind {
-    UserTable -> decode.success(UserDetail(User(id:, name:, description:)))
+    UserTable -> {
+      use username <- decode.field("username", decode.string)
+
+      decode.success(UserDetail(User(id:, name:, username:, description:)))
+    }
+
     CategoryTable ->
       decode.success(CategoryDetail(Category(id:, name:, description:)))
+
     RecipeTable -> {
       use instructions <- decode.field("instructions", decode.string)
       use prep_time_mins <- decode.field("prep_time_mins", decode.int)
@@ -117,18 +143,34 @@ pub fn detail_decoder(table_kind: TableKind) -> decode.Decoder(Detail) {
 }
 
 pub type Msg {
-  Navigate(Page)
+  // Navigation
+  NavTo(Page)
   OnUrlChange(Uri)
+  NavBack
+
+  // Modified page data
+  UserUpdatedSearch(query: String)
+  UserUpdatedUsername(username: String)
+  UserUpdatedPassword(password: String)
+  UserSubmittedAuth
+  UserClickedLogout
 
   // API Msgs
   ApiReturnedSummaries(Result(List(Summary), HttpError))
   ApiReturnedDetail(Result(Detail, HttpError))
+  ApiLoggedIn(Result(User, HttpError))
+  ApiLoggedOut(Result(Nil, HttpError))
 }
 
 pub type Model {
-  Model(page: Page, search_input: String, summaries: List(Summary))
+  Model(
+    page: Page,
+    hidden_page: Option(Page),
+    current_user: Option(User),
+    summaries: List(Summary),
+  )
 }
 
 pub fn default_model() -> Model {
-  Model(page: Home, search_input: "", summaries: [])
+  Model(page: Home, hidden_page: None, current_user: None, summaries: [])
 }

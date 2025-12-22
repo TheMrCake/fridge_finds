@@ -23,7 +23,7 @@ def execute_script(script_path: Path) -> None:
     try:
         connection: Connection = get_db_connection()
 
-        with open(script_path, 'r') as f:
+        with open(script_path, "r") as f:
             db_script: str = f.read()
         connection.executescript(db_script)
 
@@ -55,7 +55,7 @@ def get_row(id: int, table_kind: TableKind) -> dict | None:
 
     return dict(row) if row else None
 
-def get_rows(ids: List[int], table_kind: TableKind) -> List[dict] | None:
+def get_rows(ids: List[int], table_kind: TableKind) -> List[dict]:
     if not ids:
         return None
 
@@ -81,9 +81,74 @@ def get_row_with_kind(id: int, table_kind: TableKind) -> dict | None:
     return row
 
 
-def get_rows_with_kind(ids: List[int], table_kind: TableKind) -> List[dict] | None:
+def get_rows_with_kind(ids: List[int], table_kind: TableKind) -> List[dict]:
     rows: List[dict] = get_rows(ids, table_kind)
     for row in rows:
         row["kind"] = table_kind.value
 
     return rows
+
+
+
+def search_rows(in_str: str, filters: dict[str, bool]) -> List[dict]:
+    if in_str == "":
+        return []
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    all_results: List[dict] = []
+
+    (search_param, like_or_equal) = (f"{in_str}", "=") if filters.get("exact") else (f"%{in_str}%", "LIKE")
+
+    # Search if in_str matches any name, description, or ingredients
+    # Distinct makes sure there aren"t duplicates if the string matches
+    # in two places like in name and ingredients
+    # Left join to make sure that the ingredient match isn"t required,
+    # in otherwords, just keep everything
+    if filters.get("recipes"):
+        recipe_query: str = """
+            SELECT DISTINCT r.* FROM recipes r
+        """
+        if filters.get("ingredients"):
+            recipe_query += f"""
+
+                LEFT JOIN recipe_ingredients ri ON r.id = ri.recipe_id
+                LEFT JOIN ingredients i ON ri.ingredient_id = i.id
+                WHERE r.name {like_or_equal} ?
+                    OR r.description {like_or_equal} ?
+                    OR i.name {like_or_equal} ?
+            """
+        else:
+            recipe_query += f"""
+
+                WHERE r.name {like_or_equal} ?
+                    OR r.description {like_or_equal} ?
+            """
+        cursor.execute(recipe_query, (search_param, search_param, search_param))
+
+        for row in cursor.fetchall():
+            d = dict(row)
+            d["kind"] = TableKind.RECIPE.value
+            all_results.append(d)
+
+
+    if filters.get("users"):
+        # Search users now
+        user_query: str = f"""
+            SELECT * FROM users
+            WHERE name {like_or_equal} ?
+                OR description {like_or_equal} ?
+                OR username {like_or_equal} ?
+        """
+
+        cursor.execute(
+            user_query,
+            (search_param, search_param, search_param,)
+        )
+
+        for row in cursor.fetchall():
+            d = dict(row)
+            d["kind"] = TableKind.USER.value
+            all_results.append(d)
+
+    return all_results

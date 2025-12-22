@@ -1,35 +1,42 @@
--- 1. Create 5 Users
-INSERT INTO users (name, password_hash) VALUES 
-('Mario Batali', 'hash_mario'),
-('Beth the Baker', 'hash_beth'),
-('Sam Spicy', 'hash_sam'),
-('Helen Healthy', 'hash_helen'),
-('Quentin Quick', 'hash_quentin');
+-- Clear out existing data to ensure a fresh start
+DELETE FROM recipe_ingredients;
+DELETE FROM ingredients;
+DELETE FROM recipes;
+DELETE FROM users;
 
--- 2. Create Common Ingredients
+-- 1. Populate Users
+INSERT INTO users (name, description, username, password_hash) VALUES 
+('Gordon Ramsay', 'Professional chef and television personality.', 'gordon_r', 'hashed_pass_123'),
+('Jane Homecook', 'I love making simple meals for my family.', 'jane_cooks', 'hashed_pass_456'),
+('Marco Pierre White', 'The first celebrity chef.', 'mpw_legend', 'hashed_pass_789');
+
+-- 2. Populate Ingredients
+-- We use INSERT OR IGNORE just in case of duplicates during manual edits
 INSERT INTO ingredients (name) VALUES 
-('Pasta'), ('Eggs'), ('Guanciale'), ('Pecorino'), ('Black Pepper'),
-('Flour'), ('Sugar'), ('Butter'), ('Apples'), ('Cinnamon'),
-('Chicken'), ('Soy Sauce'), ('Ginger'), ('Garlic'), ('Broccoli'),
-('Avocado'), ('Sourdough'), ('Lemon'), ('Olive Oil'), ('Sea Salt');
+('Egg'), ('Flour'), ('Milk'), ('Butter'), ('Salt'), 
+('Tomato'), ('Basil'), ('Garlic'), ('Onion'), ('Pasta'),
+('Chicken Breast'), ('Olive Oil'), ('Black Pepper');
 
--- 3. Create 10 Recipes (matching your Gleam fields: name, description, instructions)
+-- 3. Populate Recipes
+-- Recipe 1: Scrambled Eggs (Author: Gordon Ramsay - ID 1)
 INSERT INTO recipes (author_id, name, description, instructions, prep_time_mins) VALUES 
-(1, 'Carbonara', 'Creamy Roman pasta', 'Whisk eggs/cheese. Fry pork. Toss with pasta.', 20),
-(1, 'Cacio e Pepe', 'Cheese and pepper pasta', 'Emulsify cheese and pasta water with lots of pepper.', 15),
-(2, 'Apple Tart', 'Crispy fruit dessert', 'Layer sliced apples over buttered pastry and bake.', 60),
-(2, 'Shortbread', '3-ingredient cookies', 'Mix butter, sugar, and flour. Bake at 150°C.', 40),
-(3, 'Kung Pao Chicken', 'Spicy stir-fry', 'Sear chicken with ginger, garlic, and dried chilies.', 25),
-(3, 'Garlic Broccoli', 'Simple side dish', 'Steam broccoli and toss with sautéed garlic oil.', 12),
-(4, 'Avocado Toast', 'Healthy breakfast', 'Mash avocado on toasted sourdough with lemon.', 10),
-(4, 'Lemon Chicken', 'Zesty grilled breast', 'Marinate chicken in lemon and herbs then grill.', 30),
-(5, 'Quick Ramen', 'Instant upgrade', 'Add a soft boiled egg and soy sauce to ramen.', 10),
-(5, 'Butter Noodles', 'The student classic', 'Boil pasta and add a massive knob of butter.', 8);
+(1, 'Gordon Ramsay Scrambled Eggs', 'The ultimate creamy scrambled eggs.', 'Break eggs into a cold pan. Add butter. Stir constantly over heat...', 10);
 
--- 4. Link Ingredients to Recipes
+-- Recipe 2: Basic Tomato Pasta (Author: Jane - ID 2)
+INSERT INTO recipes (author_id, name, description, instructions, prep_time_mins) VALUES 
+(2, 'Simple Tomato Pasta', 'A quick weekday dinner.', 'Boil pasta. Sauté garlic and onions. Add tomato and basil...', 20);
+
+-- Recipe 3: Roasted Chicken (Author: Marco - ID 3)
+INSERT INTO recipes (author_id, name, description, instructions, prep_time_mins) VALUES 
+(3, 'Classic Roasted Chicken', 'Simple but perfect roast chicken.', 'Season with salt and oil. Roast at 200C for 60 minutes...', 70);
+
+-- 4. Link Recipes to Ingredients (recipe_ingredients)
+-- Scrambled Eggs (ID 1) uses Eggs, Butter, Salt
 INSERT INTO recipe_ingredients (recipe_id, ingredient_id) VALUES 
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), -- Carbonara
-(3, 6), (3, 7), (3, 8), (3, 9), (3, 10), -- Apple Tart
-(5, 11), (5, 12), (5, 13), (5, 14), -- Kung Pao
-(7, 16), (7, 17), (7, 18), (7, 20), -- Avocado Toast
-(10, 1), (10, 8), (10, 20); -- Butter Noodles
+(1, 1), (1, 4), (1, 5);
+
+-- Tomato Pasta (ID 2) uses Pasta, Tomato, Basil, Garlic, Onion
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id) VALUES 
+(2, 10), (2, 6), (2, 7), (2, 8), (2, 9);
+
+-- Roasted Chicken (ID
